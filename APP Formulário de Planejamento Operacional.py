@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="Formulário Operacional", layout="wide")
+st.set_page_config(page_title="Formulário Operacional", layout="centered")
 
 # ---------- MODELOS E VARIÁVEIS ESPECÍFICAS ---------- #
 modelos = {
@@ -44,23 +44,23 @@ local_atracacao = {
     "TECON": "Porto do Rio de Janeiro - TECON"
 }
 equipamentos_disponiveis = {
+    "Yokohamas": ["Empresa Fornecedora", "OBS"],
     "Guindaste": ["Capacidade", "Empresa Fornecedora", "OBS"],
+    "Cerco Preventivo": ["Empresa Fornecedora", "OBS"],
     "Empilhadeira": ["Capacidade", "Empresa Fornecedora", "OBS"],
-    "Caminhão Munck": ["Capacidade", "Empresa Fornecedora", "OBS"]
 }
 
 st.title("📋 Formulário de Planejamento Operacional")
 modelo = st.selectbox("Selecione o modelo da operação:", list(modelos.keys()))
 st.divider()
 
-st.subheader("1. Informações Iniciais")
+st.subheader("1. 🚢 Informações Iniciais")
 roa = st.text_input("Número do ROA")
 navio = st.text_input("Nome da embarcação")
 data = st.date_input("Data da operação", format="DD/MM/YYYY")
 dia_semana = DIAS_SEMANA_PT[data.strftime("%A")]
 st.markdown(f"**Dia da semana:** {dia_semana}")
 
-st.subheader("2. Dados Específicos do Modelo")
 valores_modelo = {}
 for campo in modelos[modelo]:
     if "ARMAZEM" in campo.upper() or "ÁREA DE OPERAÇÃO" in campo.upper():
@@ -71,13 +71,13 @@ for campo in modelos[modelo]:
         valores_modelo[campo] = st.text_input(campo)
 
 st.divider()
-st.subheader("3. Equipe da Operação")
+st.subheader("2. 👷 Equipe da Operação")
 turno_dia = st.checkbox("Incluir equipe do turno do dia/tarde")
 turno_noite = st.checkbox("Incluir equipe do turno da noite")
 equipe = {}
 
 if turno_dia:
-    st.markdown("### 👷 Turno do Dia/Tarde")
+    st.markdown("### ☀️ Turno do Dia/Tarde")
     num_total_dia = st.number_input("Quantidade total da equipe (incluindo supervisor) - Turno Dia", min_value=1, step=1, key="dia")
     supervisor_dia = st.text_input("Supervisor (Turno Dia)")
     equipe_dia = [st.text_input(f"Integrante {i+1} (Turno Dia)", key=f"int_dia_{i}") for i in range(num_total_dia - 1)]
@@ -96,7 +96,7 @@ if turno_noite:
         horario_saida = st.text_input("Horário de saída da base")
 
 st.divider()
-st.subheader("4. Equipamentos da Operação")
+st.subheader("3. 🚜 Equipamentos da Operação")
 if "equipamentos_usados" not in st.session_state:
     st.session_state.equipamentos_usados = []
 
@@ -109,7 +109,26 @@ for idx, item in enumerate(st.session_state.equipamentos_usados, start=1):
     col1, col2 = st.columns([5, 1])
     with col1:
         st.markdown(f"#### Equipamento N°{idx}: {item['tipo']}")
-        dados = {campo: st.text_input(f"{campo} ({item['tipo']} #{idx})", key=f"{item['tipo']}_{campo}_{idx}") for campo in equipamentos_disponiveis[item["tipo"]]}
+        dados = {}
+        for campo in equipamentos_disponiveis[item["tipo"]]:
+            if campo == "OBS":
+                qtd_obs = st.number_input(
+                    f"Quantidade de OBS ({item['tipo']} #{idx})",
+                    min_value=1, max_value=3, value=1,
+                    key=f"obs_qtd_{idx}"
+                )
+                for i in range(qtd_obs):
+                    chave_obs = "OBS" if i == 0 else f"OBS{i + 1}"
+                    dados[chave_obs] = st.text_input(
+                        f"{chave_obs} ({item['tipo']} #{idx})",
+                        key=f"{item['tipo']}_{chave_obs}_{idx}"
+                    )
+            else:
+                dados[campo] = st.text_input(
+                    f"{campo} ({item['tipo']} #{idx})",
+                    key=f"{item['tipo']}_{campo}_{idx}"
+                )
+
         item["dados"] = dados
     with col2:
         if st.button("Remover", key=f"remove_{idx}"):
@@ -123,6 +142,8 @@ if remover_idx is not None:
 
 
 # Campo para o link do Marine Traffic
+st.divider()
+st.subheader("4. Marine Traffic")
 link_marine = st.text_input("Link do Marine Traffic da embarcação")
 
 # Botão para gerar o formulário

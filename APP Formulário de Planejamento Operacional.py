@@ -66,7 +66,7 @@ for campo in modelos[modelo]:
     if "ARMAZEM" in campo.upper() or "ÁREA DE OPERAÇÃO" in campo.upper():
         tipo_area = st.radio("Área de operação:", ["Armazém", "Pátio"])
         numero_area = st.text_input(f"{tipo_area.upper()}")
-        valores_modelo["ÁREA DE OPERAÇÃO"] = f"{tipo_area} {numero_area}"
+        valores_modelo["ÁREA DE OPERAÇÃO"] = f"{numero_area}"
     else:
         valores_modelo[campo] = st.text_input(campo)
 
@@ -158,7 +158,7 @@ if st.button("📄 Gerar Formulário"):
 
     for campo in modelos[modelo]:
         if campo == "ÁREA DE OPERAÇÃO (ARMAZEM/PÁTIO)":
-            formulario += f"*Área de operação:* {valores_modelo['ÁREA DE OPERAÇÃO']}\n"
+            formulario += f"*{tipo_area.upper()}:* {valores_modelo['ÁREA DE OPERAÇÃO']}\n"
         else:
             formulario += f"*{campo}:* {valores_modelo[campo]}\n"
 

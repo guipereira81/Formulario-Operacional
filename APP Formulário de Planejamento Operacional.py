@@ -164,12 +164,16 @@ if st.button("📄 Gerar Formulário"):
 
     if turno_dia:
         formulario += "\n*Equipe:*\nTurno do dia/tarde:\nSupervisor:\n-@{}\n".format(equipe["dia"]["supervisor"])
+        if len(equipe["dia"]["integrantes"]) > 0:
+            formulario += "Equipe Operacional:\n"
         for integrante in equipe["dia"]["integrantes"]:
             formulario += f"-@{integrante}\n"
         formulario += f"\nHorário de saída da base: {horario_saida}\n"
 
     if turno_noite:
         formulario += "\n*Turno da Noite:*\nSupervisor:\n-@{}\n".format(equipe["noite"]["supervisor"])
+        if len(equipe["noite"]["integrantes"]) > 0:
+            formulario += "Equipe Operacional:\n"
         for integrante in equipe["noite"]["integrantes"]:
             formulario += f"-@{integrante}\n"
         if turno_dia:
